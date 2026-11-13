@@ -19,7 +19,7 @@ function usePlateMotion() {
     const el = ref.current;
     if (!el || reducedMotion) return;
     const ctx = gsap.context(() => {
-      gsap.fromTo('.plate-img', { yPercent: -7 }, { yPercent: 7, ease: 'none', scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: true } });
+      gsap.fromTo('.plate-img', { yPercent: -3.4 }, { yPercent: 3.4, ease: 'none', scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: true } });
     }, el);
     if (!finePointer) return () => ctx.revert();
     const onMove = (e: PointerEvent): void => {
@@ -62,9 +62,6 @@ function Plate({ project, index }: { project: Project; index: number }) {
             <i className="plate-sheen" />
           </div>
           {project.badgeKey && <span className="plate-badge">{t(project.badgeKey)}</span>}
-          <span className="plate-number" aria-hidden="true">
-            {number}
-          </span>
         </div>
       </Reveal>
       <div className="plate-info">
