@@ -27,11 +27,15 @@ npm run dev          # http://localhost:5173
 `.data/`.
 
 ```sh
-npm test             # 72 теста сервера: цены, заказы, подписи, Stripe
-npm run test:e2e     # 85 проверок в браузере (нужен запущенный npm run dev)
+npm test             # 79 тестов сервера: цены, заказы, подписи, Stripe, панель
+npm run test:e2e     # 99 проверок в браузере (нужен запущенный npm run dev)
 npm run build        # проверка типов + сборка в dist/
 npm run preview      # собранный сайт на http://localhost:4173
 ```
+
+Чтобы прогнать браузерные проверки на собранном сайте с боевыми заголовками
+безопасности: `npm run build && npm run preview`, затем
+`BASE_URL=http://localhost:4173 npm run test:e2e`.
 
 `test:e2e` использует Playwright. Если его нет: `npm i -D playwright &&
 npx playwright install chromium`.
@@ -77,12 +81,14 @@ shared/                      общее для браузера и сервер�
   locales/                   ru, uk, en, de, cs
 server/                      бэкенд без привязки к хостингу
   router.ts                  HTTP API
+  adminPage.ts               панель владельца
   orders.ts                  жизненный цикл заказа
   payments/                  stripe.ts, sandbox.ts
   store/                     Netlify Blobs / файлы / память
   telegram.ts                уведомления
 netlify/functions/api.mts    обёртка для Netlify
 dev/apiPlugin.ts             тот же API внутри Vite для локальной работы
+dev/securityHeaders.ts       заголовки безопасности для preview (те же, что в netlify.toml)
 tests/server/                модульные и интеграционные тесты
 tests/e2e/run.mjs            сквозной тест в браузере
 docs/                        AUDIT.md, PAYMENTS.md
@@ -136,6 +142,7 @@ docs/                        AUDIT.md, PAYMENTS.md
 | `POST /api/orders/:id/checkout` | открыть страницу оплаты |
 | `POST /api/orders/:id/cancel` | клиент вернулся, не заплатив |
 | `POST /api/webhooks/stripe` | вебхук Stripe (с подписью) |
+| `GET /api/admin` | панель владельца: заказы, подтверждение ручных оплат |
 | `GET /api/admin/orders` | список заказов (`ADMIN_TOKEN`) |
 | `POST /api/admin/orders/:id/status` | отметить ручную оплату (`ADMIN_TOKEN`) |
 
@@ -152,10 +159,17 @@ docs/                        AUDIT.md, PAYMENTS.md
 | `SITE_URL` | адрес сайта для возврата после оплаты |
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | бот для уведомлений |
 | `TELEGRAM_NOTIFY_DETAIL` | `full` или `minimal` |
-| `ADMIN_TOKEN` | доступ к `/api/admin/*` |
+| `ADMIN_TOKEN` | доступ к панели владельца `/api/admin` и к `/api/admin/*` |
 
 База данных не нужна: на Netlify заказы лежат в Netlify Blobs (включается
 само), локально — в файлах `.data/orders/`.
+
+## Панель владельца
+
+`https://ТВОЙ-САЙТ/api/admin` — список заказов со статусами и контактами,
+кнопка «Оплата получена» для переводов по QR и оплат в чате, индикаторы
+настройки. Вход по `ADMIN_TOKEN`. Локально: `ADMIN_TOKEN=test npm run dev`
+и `http://localhost:5173/api/admin`.
 
 ## Telegram
 
@@ -202,7 +216,9 @@ docs/                        AUDIT.md, PAYMENTS.md
 - [x] Проверка подписи вебхука, идемпотентность, защита от двойной оплаты,
       сверка суммы
 - [x] Работа без API (ручной режим), без WebGL, с reduced motion
-- [x] Мобильная раскладка без горизонтальной прокрутки
+- [x] Раскладка на телефоне и десктопе на всех пяти языках без переполнений
+- [x] Панель владельца: список заказов, подтверждение ручных оплат
+- [x] Content-Security-Policy и другие заголовки: сайт грузит всё только со своего адреса
 - [x] Восстановление после потери WebGL-контекста
 - [x] Сборка функции Netlify тем же сборщиком (esbuild) и её запуск
 
@@ -220,6 +236,6 @@ docs/                        AUDIT.md, PAYMENTS.md
 - [ ] Создать бота и задать `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`
 - [ ] Аккаунт Stripe (оформляет совершеннолетний владелец счёта), тестовые
       ключи, вебхук, тестовый платёж; затем боевые ключи
-- [ ] Задать `ADMIN_TOKEN`, чтобы отмечать ручные переводы
+- [ ] Задать `ADMIN_TOKEN` и открыть панель владельца `/api/admin`, чтобы отмечать ручные переводы
 - [ ] Обновлять курс кроны в `src/config/site.ts` (сейчас 21,74 от 23.10.2026)
 - [ ] Добавлять настоящие проекты в `src/content/projects.ts`

@@ -9,6 +9,7 @@
 import { randomBytes } from 'node:crypto';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { createServer, loadEnv, type Connect, type Plugin, type ViteDevServer } from 'vite';
+import { SECURITY_HEADERS } from './securityHeaders.ts';
 
 function toRequest(req: IncomingMessage, body: Buffer): Request {
   const host = req.headers.host || 'localhost';
@@ -91,6 +92,11 @@ export function apiPlugin(): Plugin {
         optimizeDeps: { noDiscovery: true, include: [] },
       });
       server.httpServer.once('close', () => void loader.close());
+      // the built site is previewed with the production headers (see securityHeaders.ts)
+      server.middlewares.use((req, res, next) => {
+        if (!req.url?.startsWith('/api/')) for (const [k, v] of Object.entries(SECURITY_HEADERS)) res.setHeader(k, v);
+        next();
+      });
       server.middlewares.use(middleware(viaVite(loader)));
     },
   };

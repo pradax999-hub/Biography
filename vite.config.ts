@@ -8,6 +8,8 @@ export default defineConfig({
     target: 'es2022',
     sourcemap: false,
     chunkSizeWarningLimit: 900,
+    // keep every font a real file: inlined data: fonts would need a looser Content-Security-Policy
+    assetsInlineLimit: 0,
   },
   server: {
     port: 5173,

@@ -30,7 +30,7 @@ function check(name, condition, detail = '') {
     console.log(`  ✓ ${name}`);
   } else {
     failures.push(name);
-    console.log(`  ✗ ${name}${detail ? ` — ${detail}` : ''}`);
+    console.log(`  ✗ ${name}${detail ? ` — ${String(detail).slice(0, 240)}` : ''}`);
   }
 }
 const section = title => console.log(`\n${title}`);
@@ -38,6 +38,11 @@ const section = title => console.log(`\n${title}`);
 async function open(browser, options = {}, url = BASE + '/?q=minimal') {
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'en-US', ...options });
   await context.grantPermissions(['clipboard-read', 'clipboard-write']).catch(() => undefined);
+  // anything the Content-Security-Policy blocks is recorded and fails the run
+  await context.addInitScript(() => {
+    window.__csp = [];
+    document.addEventListener('securitypolicyviolation', e => window.__csp.push(`${e.violatedDirective}: ${e.blockedURI}`));
+  });
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', e => errors.push(String(e)));
@@ -49,6 +54,11 @@ async function open(browser, options = {}, url = BASE + '/?q=minimal') {
   await page.waitForTimeout(1300);
   return { context, page, errors };
 }
+
+const cspClean = async page => {
+  const hits = await page.evaluate(() => window.__csp || []);
+  check('nothing is blocked by the Content-Security-Policy', hits.length === 0, hits.slice(0, 3).join(' | '));
+};
 
 const toOrder = async page => {
   await page.evaluate(() => document.querySelector('#order .order-grid').scrollIntoView({ block: 'start' }));
@@ -108,6 +118,13 @@ async function run() {
     });
     check('WebGL context loss is survived', recovered === true || recovered === 'no-extension', String(recovered));
     check('no console errors', errors.length === 0, errors.slice(0, 3).join(' | '));
+    const headers = (await page.request.get(BASE + '/')).headers();
+    if (headers['content-security-policy']) {
+      check('production security headers are sent', headers['x-frame-options'] === 'DENY' && headers['content-security-policy'].includes("script-src 'self'"));
+    } else {
+      console.log('  · security headers are only sent by the built site (npm run preview): skipped');
+    }
+    await cspClean(page);
     await context.close();
   }
 
@@ -241,6 +258,7 @@ async function run() {
     // $325 × 21.74 = 7065.5 → rounded up to the next 10
     check('amount is converted to CZK and rounded up', /7[\s ,.]?070/.test(fields), fields.slice(0, 80));
     await page.screenshot({ path: path.join(OUT, '03-order-qr.png') });
+    await cspClean(page);
     await context.close();
   }
 
@@ -285,6 +303,7 @@ async function run() {
     await page.waitForTimeout(500);
     await page.screenshot({ path: path.join(OUT, '06-paid.png') });
     check('no console errors', errors.length === 0, errors.slice(0, 3).join(' | '));
+    await cspClean(page);
     await context.close();
   }
 
@@ -382,6 +401,34 @@ async function run() {
     check('no section overflows sideways', widths.every(w => w <= 1), widths.join(','));
     check('no console errors', errors.length === 0, errors.slice(0, 3).join(' | '));
     await context.close();
+  }
+
+  /* --------------------------------------------- every language, two sizes */
+  section('Layout in all five languages');
+  for (const lang of ['ru', 'uk', 'en', 'de', 'cs']) {
+    for (const [label, viewport, mobile] of [['phone', { width: 360, height: 780 }, true], ['desktop', { width: 1280, height: 720 }, false]]) {
+      const context = await browser.newContext({ viewport, locale: 'en-US', hasTouch: mobile, isMobile: mobile, reducedMotion: 'reduce' });
+      await context.addInitScript(l => localStorage.setItem('nw-lang', l), lang);
+      const page = await context.newPage();
+      await page.goto(BASE + '/?q=minimal', { waitUntil: 'load' });
+      await page.waitForTimeout(1500);
+      const report = await page.evaluate(async () => {
+        await document.fonts.ready;
+        const out = [];
+        const doc = document.documentElement.scrollWidth - window.innerWidth;
+        if (doc > 1) out.push(`page +${doc}px`);
+        // headings and buttons must fit the box they sit in
+        for (const el of document.querySelectorAll('.h2, .mega, .plate-title, .svc h3, .skill h3, .path-card h3, .link-row .val, .btn, .choice-card b, .steps li, .lang-card .hi')) {
+          const r = el.getBoundingClientRect();
+          if (!r.width) continue;
+          if (r.right > window.innerWidth + 1 || r.left < -1) out.push(`${el.className.split(' ')[0]} "${el.textContent.trim().slice(0, 24)}" sticks out`);
+          else if (el.scrollWidth > el.clientWidth + 2 && getComputedStyle(el).overflow !== 'visible') out.push(`${el.className.split(' ')[0]} "${el.textContent.trim().slice(0, 24)}" is clipped`);
+        }
+        return out;
+      });
+      check(`${lang} · ${label}: nothing overflows or is clipped`, report.length === 0, report.slice(0, 4).join(' | '));
+      await context.close();
+    }
   }
 
   /* ------------------------------------------------------ reduced motion */

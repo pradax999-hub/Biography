@@ -96,6 +96,15 @@ export interface AdminInfo {
   hint: string | null;
 }
 
+/** Russian plural: 1 заказ, 2 заказа, 5 заказов. */
+const plural = (n: number, one: string, few: string, many: string): string => {
+  const a = n % 10;
+  const b = n % 100;
+  if (a === 1 && b !== 11) return one;
+  if (a >= 2 && a <= 4 && (b < 12 || b > 14)) return few;
+  return many;
+};
+
 const date = (iso: string): string => {
   try {
     return new Intl.DateTimeFormat('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Prague' }).format(new Date(iso));
@@ -144,7 +153,7 @@ export function adminPanelPage(orders: OrderRecord[], token: string, info: Admin
   return page(
     'NIGHTWNTR · заказы',
     `<h1>NIGHTWNTR · заказы</h1>
-<p class="mono">${orders.length} ${orders.length === 1 ? 'заказ' : 'заказов'} · время пражское</p>
+<p class="mono">${orders.length} ${plural(orders.length, 'заказ', 'заказа', 'заказов')} · время пражское</p>
 <div class="bar">${pills.join('')}</div>
 ${info.hint ? `<p class="note">Почему оплата картой выключена: ${esc(info.hint)}</p>` : ''}
 ${message ? `<p class="error">${esc(message)}</p>` : ''}
