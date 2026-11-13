@@ -1,0 +1,53 @@
+/**
+ * THE ARCHIVE — projects shown on the site.
+ *
+ * Only real work goes here. To add a project: put a screenshot in
+ * public/archive/, add an entry below, and add its texts to every file in
+ * shared/locales/ under the keys you name in `kindKey` and `descKey`.
+ * Empty slots are drawn automatically and are clearly marked as placeholders.
+ */
+export interface Project {
+  id: string;
+  title: string;
+  year: string;
+  /** locale key: one line about what kind of work this is */
+  kindKey: string;
+  /** locale key: the description */
+  descKey: string;
+  tags: string[];
+  /** path under public/, e.g. '/archive/my-project.jpg' */
+  image?: string;
+  /** where the project lives; leave empty when there is nothing to open */
+  url?: string;
+  /** locale key of a short label over the image */
+  badgeKey?: string;
+}
+
+export const PROJECTS: Project[] = [
+  {
+    id: 'nightwntr-2',
+    title: 'NIGHTWNTR 2.0',
+    year: '2026',
+    kindKey: 'arc.v2.kind',
+    descKey: 'arc.v2.desc',
+    tags: ['React', 'TypeScript', 'Three.js', 'GLSL', 'GSAP'],
+    image: '/archive/nightwntr-2.jpg',
+    badgeKey: 'arc.here',
+  },
+  {
+    id: 'nightwntr-1',
+    title: 'NIGHTWNTR 1.0',
+    year: '2026',
+    kindKey: 'arc.v1.kind',
+    descKey: 'arc.v1.desc',
+    tags: ['HTML', 'CSS', 'JavaScript', 'Three.js', 'WebGL'],
+    image: '/archive/nightwntr-1.jpg',
+    badgeKey: 'arc.archived',
+    // 1.0 lived at bio-nightwntr.netlify.app. If 2.0 is deployed to a different
+    // address and 1.0 stays online, put its address here to add an "Open" link.
+    url: '',
+  },
+];
+
+/** How many "open slot" placeholders follow the real projects. */
+export const OPEN_SLOTS = 2;

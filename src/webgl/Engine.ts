@@ -830,7 +830,7 @@ export class Engine {
     pu.tA.value = su.tA.value;
     pu.tB.value = su.tB.value;
     pu.uMorph.value = morph;
-    pu.uSize.value = cur.size * (0.85 + 0.15 * density);
+    pu.uSize.value = cur.size * (0.93 + 0.07 * density);
     pu.uAlpha.value = 0.095 * cur.alpha * Math.pow(density, 1.25) * easeInOut(Math.min(1, this.intro * 1.6));
     pu.uHue.value = cur.hue;
     pu.uFree.value = cur.free;

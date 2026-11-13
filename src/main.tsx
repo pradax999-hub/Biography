@@ -1,11 +1,18 @@
-// temporary harness: engine only
-import { Engine } from './webgl/Engine';
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import '@fontsource-variable/unbounded/wght.css';
+import '@fontsource-variable/onest/wght.css';
+import '@fontsource-variable/jetbrains-mono/wght.css';
+import '@fontsource/cormorant/400-italic.css';
+import '@fontsource/cormorant/500-italic.css';
+import './styles/base.css';
+import './styles/layout.css';
+import './styles/sections.css';
+import './styles/order.css';
+import App from './App';
 
-const canvas = document.createElement('canvas');
-canvas.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;display:block';
-document.body.appendChild(canvas);
-const engine = new Engine({ canvas, onStats: s => ((window as any).__stats = s), onFail: r => ((window as any).__fail = r) });
-(window as any).__engine = engine;
-engine.start();
-addEventListener('resize', () => engine.resize());
-addEventListener('pointermove', e => engine.setPointer(e.clientX, e.clientY));
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+);
