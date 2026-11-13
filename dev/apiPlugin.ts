@@ -11,15 +11,19 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import { createServer, loadEnv, type Connect, type Plugin, type ViteDevServer } from 'vite';
 import { SECURITY_HEADERS } from './securityHeaders.ts';
 
+const first = (v: string | string[] | undefined): string => (Array.isArray(v) ? v[0] : v || '').split(',')[0].trim();
+
 function toRequest(req: IncomingMessage, body: Buffer): Request {
-  const host = req.headers.host || 'localhost';
+  // behind a tunnel or proxy the public address is in the forwarded headers
+  const host = first(req.headers['x-forwarded-host']) || req.headers.host || 'localhost';
+  const proto = first(req.headers['x-forwarded-proto']) === 'https' ? 'https' : 'http';
   const headers = new Headers();
   for (const [k, v] of Object.entries(req.headers)) {
     if (Array.isArray(v)) v.forEach(x => headers.append(k, x));
     else if (v != null) headers.set(k, v);
   }
   const method = (req.method || 'GET').toUpperCase();
-  return new Request(`http://${host}${req.url}`, {
+  return new Request(`${proto}://${host}${req.url}`, {
     method,
     headers,
     body: method === 'GET' || method === 'HEAD' ? undefined : new Uint8Array(body),
@@ -93,8 +97,15 @@ export function apiPlugin(): Plugin {
       });
       server.httpServer.once('close', () => void loader.close());
       // the built site is previewed with the production headers (see securityHeaders.ts)
+      // (a remote preview may show the page inside a frame, so the two headers that forbid framing are relaxed there)
+      const remote = process.env.NW_REMOTE_PREVIEW === '1';
       server.middlewares.use((req, res, next) => {
-        if (!req.url?.startsWith('/api/')) for (const [k, v] of Object.entries(SECURITY_HEADERS)) res.setHeader(k, v);
+        if (!req.url?.startsWith('/api/')) {
+          for (const [k, v] of Object.entries(SECURITY_HEADERS)) {
+            if (remote && k === 'X-Frame-Options') continue;
+            res.setHeader(k, remote ? v.replace(" frame-ancestors 'none';", '') : v);
+          }
+        }
         next();
       });
       server.middlewares.use(middleware(viaVite(loader)));

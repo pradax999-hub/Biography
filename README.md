@@ -37,6 +37,10 @@ npm run preview      # собранный сайт на http://localhost:4173
 безопасности: `npm run build && npm run preview`, затем
 `BASE_URL=http://localhost:4173 npm run test:e2e`.
 
+Показать сайт на другом устройстве через туннель или удалённый просмотр:
+`NW_REMOTE_PREVIEW=1 npm run preview` (сервер принимает любое имя хоста и
+разрешает показ во фрейме; для обычной локальной работы не включай).
+
 `test:e2e` использует Playwright. Если его нет: `npm i -D playwright &&
 npx playwright install chromium`.
 
