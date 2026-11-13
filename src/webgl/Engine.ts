@@ -601,6 +601,8 @@ export class Engine {
     }
     (this.compositeMat.uniforms.uResolution.value as THREE.Vector2).set(w, h);
     this.perfGrace = 60;
+    // resizing a canvas clears it: draw again right away so no empty frame is ever shown
+    if (this.built && !this.lost && this.frame > 0) this.render();
   }
 
   /* --------------------------------------------------------------- inputs */
@@ -887,6 +889,8 @@ export class Engine {
   /* --------------------------------------------------- adaptive quality */
 
   private watchPerformance(elapsed: number): void {
+    // a single long gap is the page being busy (loading, a background tab), not a slow GPU
+    if (elapsed > 0.5) return;
     this.fpsSmooth += (1 / Math.max(elapsed, 1e-3) - this.fpsSmooth) * 0.06;
 
     this.statsClock += elapsed;
@@ -946,6 +950,9 @@ export class Engine {
     const introDone = this.intro;
     this.build();
     this.intro = Math.max(introDone, 0.6);
+    // a new renderer starts with an empty canvas: fill it before the browser shows it
+    this.update(1 / 60);
+    this.render();
   }
 
   private releaseGpu(): void {
@@ -975,6 +982,8 @@ export class Engine {
       this.build();
       this.intro = 0.6;
       this.lost = false;
+      this.update(1 / 60);
+      this.render();
     } catch (err) {
       console.error('[engine] could not restore the context', err);
       this.opts.onFail?.('context-lost');

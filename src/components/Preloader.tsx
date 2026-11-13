@@ -9,13 +9,17 @@ import { Icon } from './Icon';
 const MIN_MS = 1100;
 const MAX_MS = 2600;
 
+/** Someone coming back from the payment page wants the result, not an intro. */
+const returning = typeof location !== 'undefined' && new URLSearchParams(location.search).has('order');
+const skip = reducedMotion || returning;
+
 export function Preloader() {
   const [count, setCount] = useState(0);
-  const [gone, setGone] = useState(reducedMotion);
+  const [gone, setGone] = useState(skip);
 
   useEffect(() => {
     const html = document.documentElement;
-    if (reducedMotion) {
+    if (skip) {
       html.classList.add('is-ready');
       return;
     }
