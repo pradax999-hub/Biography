@@ -79,7 +79,7 @@ void main() {
 
   // 2. the fluid
   vec3 f = flow(pos * uFlowScale + vec3(0.0, uTime * 0.045, uTime * 0.02));
-  acc += f * uTurb * (1.0 + 2.6 * isFree + 5.0 * churn);
+  acc += f * uTurb * (1.0 + 2.6 * isFree + 2.6 * churn);
 
   // 3. the pointer: a soft cylinder along the view ray
   vec3 rel = pos - uRayO;
@@ -94,9 +94,10 @@ void main() {
   acc += cross(uRayD, away) * near * (1.5 + 3.0 * min(speed, 3.0)) * uPointer;
   acc += uPointerVel * near * 1.2 * uPointer;
   // held down: the cloud is drawn toward the ray and winds around it
-  float wide = exp(-(d * d) / (r * r * 9.0));
-  acc -= away * wide * 11.0 * uPress * smoothstep(0.02, 0.25, d);
-  acc += cross(uRayD, away) * wide * 6.0 * uPress;
+  // (only the part of the cloud near the pointer: the rest keeps its shape)
+  float wide = exp(-(d * d) / (r * r * 5.0));
+  acc -= away * wide * 6.5 * uPress * smoothstep(0.05, 0.4, d);
+  acc += cross(uRayD, away) * wide * 7.0 * uPress;
 
   vel += acc * dt;
   vel *= exp(-uDamp * dt);
