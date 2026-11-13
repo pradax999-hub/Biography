@@ -81,20 +81,6 @@ const paletteUniforms = (): Uniforms => ({
 const easeInOut = (t: number): number => t * t * (3 - 2 * t);
 const damp = (current: number, target: number, lambda: number, dt: number): number => current + (target - current) * (1 - Math.exp(-lambda * dt));
 
-/** Can this browser run the engine at all? Checked without creating a renderer. */
-export function webglSupport(): { ok: boolean; reason?: string } {
-  try {
-    const canvas = document.createElement('canvas');
-    const gl = canvas.getContext('webgl2', { failIfMajorPerformanceCaveat: false });
-    if (!gl) return { ok: false, reason: 'no-webgl2' };
-    const ok = !!gl.getExtension('EXT_color_buffer_float') || !!gl.getExtension('EXT_color_buffer_half_float');
-    gl.getExtension('WEBGL_lose_context')?.loseContext();
-    return ok ? { ok: true } : { ok: false, reason: 'no-float-targets' };
-  } catch {
-    return { ok: false, reason: 'error' };
-  }
-}
-
 export class Engine {
   private canvas: HTMLCanvasElement;
   private opts: EngineOptions;
@@ -520,7 +506,7 @@ export class Engine {
           uPx: { value: 1000 },
           uFocus: { value: CAM_Z },
           uAperture: { value: 0.011 },
-          uAlpha: { value: 1.0 },
+          uAlpha: { value: 0.7 },
         },
         true,
       ),
@@ -536,7 +522,7 @@ export class Engine {
       rawMaterial(FULLSCREEN_VS, BLOOM_PREFILTER_FS, {
         tMap: { value: null },
         uTexel: { value: new THREE.Vector2() },
-        uThreshold: { value: 0.42 },
+        uThreshold: { value: 0.5 },
         uKnee: { value: 0.4 },
       }),
     );
@@ -560,8 +546,8 @@ export class Engine {
         uExposure: { value: 1.0 },
         uFringe: { value: 0.006 },
         uGrain: { value: 0.035 },
-        uVignette: { value: 0.55 },
-        uHaze: { value: 0.02 },
+        uVignette: { value: 0.62 },
+        uHaze: { value: 0.013 },
         uGlowPos: { value: new THREE.Vector2(0.5, 0.5) },
         uGlow: { value: 0.05 },
         uBg: { value: PALETTE.bg },
@@ -677,6 +663,7 @@ export class Engine {
     if (this.running || this.disposed) return;
     this.running = true;
     this.lastTime = performance.now();
+    this.opts.onStats?.(this.stats());
     this.raf = requestAnimationFrame(this.tick);
   }
 
@@ -857,8 +844,8 @@ export class Engine {
     const cu = this.compositeMat.uniforms;
     cu.uTime.value = this.time;
     cu.uFrame.value = this.frame % 4096;
-    cu.uBloom.value = 0.9 * cur.bloom;
-    cu.uGlow.value = 0.05 * cur.glow * easeInOut(this.intro);
+    cu.uBloom.value = 0.72 * cur.bloom;
+    cu.uGlow.value = 0.034 * cur.glow * easeInOut(this.intro);
     const ndc = this.tmpV.copy(this.center).project(this.camera);
     (cu.uGlowPos.value as THREE.Vector2).set(ndc.x * 0.5 + 0.5, ndc.y * 0.5 + 0.5);
   }

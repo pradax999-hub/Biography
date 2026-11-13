@@ -58,7 +58,7 @@ const base: Omit<SceneDef, 'id' | 'formation'> = {
 
 /** Wide screens: the structure shares the stage with the typography. */
 export const SCENES: SceneDef[] = [
-  { ...base, id: 'void', formation: 0, y: 0.1, scale: 1.02, alpha: 1.5, glow: 1.2 },
+  { ...base, id: 'void', formation: 0, y: 0.1, scale: 1.04, alpha: 1.5, glow: 1.2, aperture: 0.008 },
   { ...base, id: 'creator', formation: 1, x: 0.5, scale: 0.78, spin: 0.09, tiltX: 0.3, hue: 0.04, alpha: 0.9, glow: 0.7 },
   { ...base, id: 'skills', formation: 1, x: -0.5, y: 0.05, scale: 0.8, spin: -0.07, tiltX: -0.2, hue: 0.12, alpha: 0.62, trail: 0.7, glow: 0.45 },
   { ...base, id: 'langs', formation: 1, x: 0.05, y: -0.05, z: -1.6, scale: 1.25, spin: 0.05, hue: -0.05, alpha: 0.34, trail: 0.5, glow: 0.4, aperture: 0.016 },
@@ -71,15 +71,15 @@ export const SCENES: SceneDef[] = [
 
 /** Tall screens: the structure becomes the backdrop, centred and quieter behind text. */
 const PORTRAIT: Record<string, Partial<SceneDef>> = {
-  void: { x: 0, y: 0.26, scale: 0.6 },
-  creator: { x: 0, y: 0.3, scale: 0.56, alpha: 0.6 },
-  skills: { x: 0, y: -0.1, scale: 0.6, alpha: 0.4 },
-  langs: { x: 0, y: 0, scale: 0.8, alpha: 0.28 },
-  path: { x: 0.35, y: 0.1, scale: 0.5, alpha: 0.38 },
-  archive: { y: -0.5, scale: 0.62, alpha: 0.55 },
-  services: { scale: 0.56, alpha: 0.36 },
-  order: { alpha: 0.16 },
-  connection: { y: 0.16, scale: 0.6, alpha: 0.85 },
+  void: { x: 0, y: 0.24, scale: 0.62, alpha: 0.85, glow: 0.9 },
+  creator: { x: 0.3, y: 0.42, scale: 0.5, alpha: 0.34, trail: 0.5 },
+  skills: { x: -0.3, y: 0.4, scale: 0.5, alpha: 0.24, trail: 0.4 },
+  langs: { x: 0, y: 0, scale: 0.8, alpha: 0.2 },
+  path: { x: 0.4, y: 0.4, scale: 0.46, alpha: 0.24, trail: 0.4 },
+  archive: { y: -0.5, scale: 0.62, alpha: 0.4 },
+  services: { scale: 0.56, alpha: 0.26 },
+  order: { alpha: 0.14 },
+  connection: { y: 0.3, scale: 0.52, alpha: 0.7 },
 };
 
 export function sceneFor(index: number, portrait: number): SceneDef {

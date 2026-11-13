@@ -259,8 +259,11 @@ html.is-ready .hud {
   .hero-tags {
     display: none;
   }
+  .hero-cta {
+    flex-direction: column;
+  }
   .hero-cta .btn {
-    flex: 1;
+    width: 100%;
   }
 }
 

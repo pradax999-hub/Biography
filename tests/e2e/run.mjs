@@ -123,10 +123,10 @@ async function run() {
     check('html lang attribute follows', (await page.evaluate(() => document.documentElement.lang)) === 'de');
     await page.evaluate(() => document.querySelector('#langs').scrollIntoView());
     await page.waitForTimeout(700);
-    // the card may be at the back of the ring: focusing it turns the ring to face it
+    // the ring turns on its own; focusing a card turns the ring to face it
     await page.locator('.lang-card[data-lang="cs"]').focus();
-    await page.waitForTimeout(1600);
-    await page.locator('.lang-card[data-lang="cs"]').click();
+    await page.waitForTimeout(1800);
+    await page.locator('.lang-card[data-lang="cs"]').click({ force: true });
     await page.waitForTimeout(600);
     check('language card switches the site to Czech', (await text(page, '.nav-links')).toLowerCase().includes('o mně'));
     await page.reload({ waitUntil: 'load' });
@@ -236,7 +236,7 @@ async function run() {
     const fields = await text(page, '.pay-fields');
     check('QR code is drawn', (await page.locator('.pay .qr path').getAttribute('d')).length > 500);
     check('shows the recipient and the account from the settings', fields.includes('Tetiana Tymkovych') && fields.includes('333278000/0300'));
-    check('IBAN is derived from the Czech account number', fields.replace(/\s/g, '').includes('CZ7403000000000333278000'), fields.replace(/\s+/g, ' ').slice(0, 200));
+    check('IBAN is derived from the Czech account number', fields.replace(/\s/g, '').includes('CZ3903000000000333278000'), fields.replace(/\s+/g, ' ').slice(0, 200));
     check('variable symbol is the digits of the order number', fields.includes(id.replace(/\D/g, '')));
     // $325 × 21.74 = 7065.5 → rounded up to the next 10
     check('amount is converted to CZK and rounded up', /7[\s ,.]?070/.test(fields), fields.slice(0, 80));
@@ -406,7 +406,8 @@ async function run() {
     const { context, page, errors } = await open(plain, {}, BASE + '/');
     check('CSS backdrop takes over', await page.evaluate(() => document.documentElement.classList.contains('no-webgl') && !!document.querySelector('.stage-fallback.is-on')));
     check('the page and the order form still work', (await page.locator('.wordmark').isVisible()) && (await page.locator('#orderForm').count()) === 1);
-    check('HUD says so', (await text(page, '.hud-stats')).toLowerCase().includes('webgl'));
+    const hud = await text(page, '.hud-stats');
+    check('HUD says so instead of showing counters', hud.toLowerCase().includes('webgl') && !/FPS/i.test(hud), hud);
     await page.screenshot({ path: path.join(OUT, '13-no-webgl.png') });
     check('no console errors', errors.length === 0, errors.slice(0, 3).join(' | '));
     await context.close();

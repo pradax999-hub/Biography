@@ -376,12 +376,15 @@ export function OrderProvider({ children }: { children: ReactNode }) {
   refreshRef.current = refresh;
 
   /* coming back from the payment page, or opening an order link ---------- */
-  useEffect(() => {
+  // read once, at mount: the effect below cleans the address bar, and must still
+  // know what was in it if React runs the effect a second time (StrictMode)
+  const [arrival] = useState(() => {
     const params = new URLSearchParams(location.search);
-    const id = params.get('order');
+    return { id: params.get('order'), outcome: params.get('checkout'), sessionId: params.get('session_id') };
+  });
+  useEffect(() => {
+    const { id, outcome, sessionId } = arrival;
     if (!id) return;
-    const outcome = params.get('checkout');
-    const sessionId = params.get('session_id');
     const token = store.get(tokenKey(id));
     // the address bar should not keep payment parameters around
     history.replaceState(null, '', location.pathname + '#order');
@@ -427,7 +430,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
       alive = false;
       window.clearTimeout(scroll);
     };
-  }, []);
+  }, [arrival]);
 
   /* keep asking the server while a payment is being confirmed ------------ */
   const status = state.order?.status;

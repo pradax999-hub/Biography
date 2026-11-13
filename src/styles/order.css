@@ -42,6 +42,7 @@
 
 .panel {
   position: relative;
+  min-width: 0;
   padding: clamp(18px, 2.6vw, 40px);
   background: var(--panel);
   border: 1px solid var(--line-2);
@@ -866,11 +867,10 @@ label.addon {
 
 @media (max-width: 1000px) {
   .order-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .summary {
     position: static;
-    order: -1;
   }
   .how {
     grid-template-columns: repeat(2, minmax(0, 1fr));

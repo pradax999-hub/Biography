@@ -58,33 +58,34 @@ float voidRadius(vec3 d) {
 }
 vec4 fVoid(vec3 r1, vec3 r2, vec3 r3) {
   float pick = r1.x;
-  if (pick < 0.46) {
+  if (pick < 0.50) {
     // the veins: most of the light sits on a few long, branching lines
     vec3 d = veins(onSphere(r1.yz), 1.55, vec3(3.7, 1.1, -2.3), 0.86 + 0.1 * r3.y);
     float hue = 0.42 + 0.5 * snoise(d * 0.9 + 7.0) + 0.12 * (r3.x - 0.5);
     return vec4(d * (voidRadius(d) + gauss(r2.xy) * 0.008), clamp(hue, 0.0, 1.0));
   }
-  if (pick < 0.66) {
+  if (pick < 0.70) {
     // the skin between them: thin, marbled haze
     vec3 d = marble(onSphere(r1.yz), 1.35, 0.11, 6, vec3(3.7, 1.1, -2.3));
     return vec4(d * (voidRadius(d) * (0.985 + 0.02 * r2.x)), clamp(0.12 + 0.3 * snoise(d * 1.4 + 2.0), 0.0, 0.45));
   }
-  if (pick < 0.78) {
+  if (pick < 0.83) {
     vec3 d = veins(onSphere(r1.yz), 2.4, vec3(-1.9, 4.2, 0.6), 0.7);
     float R = 0.46 * pow(r2.x, 0.5) * (1.0 + 0.22 * snoise(d * 2.0 + 9.0));
     return vec4(d * R, 0.78 + 0.22 * r2.y);
   }
-  if (pick < 0.93) {
+  if (pick < 0.975) {
+    // a thin ring: bands of dust in one tilted plane
     float u = r2.x;
-    float rad = 1.82 + 1.0 * pow(u, 1.6);
-    rad += 0.05 * sin(rad * 26.0);
+    float rad = 1.86 + 0.86 * pow(u, 1.5);
+    rad += 0.05 * sin(rad * 30.0);
     float ang = r1.y * TAU;
-    vec3 p = vec3(cos(ang) * rad, gauss(r2.yz) * 0.010 * (1.0 + (rad - 1.82) * 2.2), sin(ang) * rad);
+    vec3 p = vec3(cos(ang) * rad, gauss(r2.yz) * 0.006, sin(ang) * rad);
     p = rotZ(0.36) * rotX(0.30) * p;
     return vec4(p, 0.04 + 0.30 * u + 0.10 * r3.x);
   }
   vec3 d = onSphere(r1.yz);
-  return vec4(d * (2.1 + 1.7 * pow(r2.x, 0.7)), r2.y);
+  return vec4(d * (2.1 + 1.5 * pow(r2.x, 0.7)), r2.y);
 }
 
 /* 1 — MIND: Thomas' cyclically symmetric strange attractor. */

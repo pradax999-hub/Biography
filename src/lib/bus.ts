@@ -16,12 +16,18 @@ type Handler<K extends keyof Events> = (payload: Events[K]) => void;
 
 const handlers: { [K in keyof Events]?: Set<Handler<K>> } = {};
 
+/** State-like events: whoever subscribes late still gets the latest value. */
+const STICKY: Array<keyof Events> = ['stats', 'fallback'];
+const last: Partial<Events> = {};
+
 export function on<K extends keyof Events>(event: K, handler: Handler<K>): () => void {
   const set = (handlers[event] ??= new Set() as never) as Set<Handler<K>>;
   set.add(handler);
+  if (event in last) handler(last[event] as Events[K]);
   return () => set.delete(handler);
 }
 
 export function emit<K extends keyof Events>(event: K, payload: Events[K]): void {
+  if (STICKY.includes(event)) last[event] = payload;
   (handlers[event] as Set<Handler<K>> | undefined)?.forEach(h => h(payload));
 }
