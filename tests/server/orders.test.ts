@@ -522,3 +522,68 @@ describe('admin API', () => {
     expect((await api(w, 'POST', `/api/admin/orders/${order.id}/status`, { status: 'whatever' }, auth)).status).toBe(400);
   });
 });
+
+describe('owner panel (/api/admin)', () => {
+  const form = (w: World, fields: Record<string, string>) =>
+    handleApi(
+      new Request(ORIGIN + '/api/admin', {
+        method: 'POST',
+        headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(fields).toString(),
+      }),
+      w.deps,
+    );
+
+  it('is switched off without ADMIN_TOKEN', async () => {
+    const res = await handleApi(new Request(ORIGIN + '/api/admin'), world().deps);
+    expect(res.status).toBe(404);
+    expect(await res.text()).toContain('ADMIN_TOKEN');
+  });
+
+  it('shows a sign-in page and refuses a wrong token', async () => {
+    const w = world({ ADMIN_TOKEN: 'owner-secret' });
+    const login = await handleApi(new Request(ORIGIN + '/api/admin'), w.deps);
+    expect(login.status).toBe(200);
+    expect(login.headers.get('content-security-policy')).toContain("default-src 'none'");
+    expect(login.headers.get('cache-control')).toBe('no-store');
+    expect(await login.text()).toContain('type="password"');
+    const wrong = await form(w, { token: 'nope' });
+    expect(wrong.status).toBe(401);
+    expect(await wrong.text()).not.toContain('NW-');
+  });
+
+  it('lists orders and escapes everything the customer typed', async () => {
+    const w = world({ ADMIN_TOKEN: 'owner-secret' });
+    const { order } = await create(w, { pm: 'qr', name: '<b>Alex</b>', details: 'A page <script>alert(1)</script> for a coffee shop' });
+    const res = await form(w, { token: 'owner-secret' });
+    expect(res.status).toBe(200);
+    const page = await res.text();
+    expect(page).toContain(order.id);
+    expect(page).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
+    expect(page).not.toContain('<script');
+    expect(page).not.toContain('<b>Alex</b>');
+    // nothing internal is printed
+    expect(page).not.toContain((await w.store.get(order.id))!.tokenHash);
+  });
+
+  it('confirms a manual payment and can undo it', async () => {
+    const w = world({ ADMIN_TOKEN: 'owner-secret' });
+    const { order, token } = await create(w, { pm: 'qr' });
+    const paid = await form(w, { token: 'owner-secret', id: order.id, status: 'paid' });
+    expect(paid.status).toBe(200);
+    expect((await status(w, order.id, token)).status).toBe('paid');
+    await form(w, { token: 'owner-secret', id: order.id, status: 'created' });
+    expect((await status(w, order.id, token)).status).toBe('created');
+    // an action with a wrong token changes nothing
+    await form(w, { token: 'nope', id: order.id, status: 'paid' });
+    expect((await status(w, order.id, token)).status).toBe('created');
+  });
+
+  it('offers no manual "paid" button for card orders', async () => {
+    const w = world({ ADMIN_TOKEN: 'owner-secret' });
+    await create(w, { pm: 'card' });
+    const page = await (await form(w, { token: 'owner-secret' })).text();
+    expect(page).not.toContain('name="status" value="paid"');
+    expect(page).toContain('name="status" value="cancelled"');
+  });
+});

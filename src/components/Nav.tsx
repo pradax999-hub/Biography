@@ -179,7 +179,7 @@ export function Nav() {
         </div>
       </nav>
 
-      <div className={`menu ${menu ? 'is-open' : ''}`} id="menu" aria-hidden={!menu}>
+      <div className={`menu ${menu ? 'is-open' : ''}`} id="menu" aria-hidden={!menu} inert={!menu}>
         <ol className="menu-links">
           {LINKS.map((l, i) => (
             <li key={l.href} style={{ transitionDelay: menu ? `${80 + i * 45}ms` : '0ms' }}>

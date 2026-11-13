@@ -197,6 +197,7 @@ const locale: Locale = {
   'foot.top': 'Nach oben',
 
   /* ---- added in 2.0 ---- */
+  'nav.skip': 'Zum Inhalt springen',
   'nav.archive': 'Projekte',
   'nav.close': 'Schließen',
   'meta.desc': 'nightwntr: Webdesign, Code und Webentwicklung. Websites, Videos und Apps aus einer Hand.',

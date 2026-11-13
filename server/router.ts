@@ -13,11 +13,14 @@
  *   POST /api/webhooks/sandbox            sandbox → us (signed)
  *   GET  /api/sandbox/checkout            sandbox hosted page
  *   POST /api/sandbox/complete            sandbox outcome
+ *   GET  /api/admin                       owner panel: sign-in page
+ *   POST /api/admin                       owner panel: orders, confirm manual payments
  *   GET  /api/admin/orders                owner: list orders (ADMIN_TOKEN)
  *   POST /api/admin/orders/:id/status     owner: confirm a manual payment (ADMIN_TOKEN)
  */
 import type { PublicConfig } from '../shared/types';
 import { CURRENCY } from '../shared/catalog';
+import { adminDisabledPage, adminLoginPage, adminPanelPage } from './adminPage';
 import { providerProblem, readEnv, type ServerEnv } from './env';
 import { safeEqual } from './ids';
 import { adminList, adminSetStatus, cancelCheckout, createOrder, getOrder, handleWebhook, startCheckout, type Deps } from './orders';
@@ -43,7 +46,9 @@ const html = (body: string, status = 200): Response =>
       'content-type': 'text/html; charset=utf-8',
       'cache-control': 'no-store',
       'x-robots-tag': 'noindex',
-      'content-security-policy': "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'",
+      'content-security-policy': "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
+      'x-frame-options': 'DENY',
+      'referrer-policy': 'no-referrer',
     },
   });
 
@@ -159,6 +164,39 @@ async function sandboxComplete(deps: Deps, req: Request): Promise<Response> {
   return redirect(success);
 }
 
+/* ------------------------------------------------------------ owner panel */
+
+async function adminPanel(deps: Deps, req: Request): Promise<Response> {
+  const expected = deps.env.adminToken;
+  if (!expected) return html(adminDisabledPage(), 404);
+  if (req.method.toUpperCase() === 'GET') return html(adminLoginPage());
+
+  rateLimit(req, 'admin', 20);
+  const form = new URLSearchParams(await readText(req));
+  const token = form.get('token') || '';
+  if (!token || token.length > 300 || !safeEqual(token, expected)) return html(adminLoginPage('Неверный токен.'), 401);
+
+  let message = '';
+  const id = form.get('id');
+  const status = form.get('status');
+  if (id && status) {
+    try {
+      await adminSetStatus(deps, id, status, 'панель владельца');
+    } catch {
+      message = 'Не удалось изменить статус заказа.';
+    }
+  }
+  const cfg = publicConfig(deps);
+  const info = {
+    payments: cfg.payments.provider ?? 'off',
+    mode: cfg.payments.mode,
+    notifications: cfg.notifications,
+    store: deps.store.kind,
+    hint: deps.provider ? null : providerProblem(),
+  };
+  return html(adminPanelPage(await deps.store.list(200), token, info, message));
+}
+
 /* ----------------------------------------------------------------- router */
 
 export async function handleApi(req: Request, overrides?: Partial<Deps>): Promise<Response> {
@@ -213,6 +251,8 @@ export async function handleApi(req: Request, overrides?: Partial<Deps>): Promis
 
     if (path === '/sandbox/checkout' && method === 'GET') return await sandboxCheckout(deps, url);
     if (path === '/sandbox/complete' && method === 'POST') return await sandboxComplete(deps, req);
+
+    if (path === '/admin' && (method === 'GET' || method === 'POST')) return await adminPanel(deps, req);
 
     if (path.startsWith('/admin/')) {
       // without a configured ADMIN_TOKEN the admin API does not exist

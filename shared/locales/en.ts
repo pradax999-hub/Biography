@@ -197,6 +197,7 @@ const locale: Locale = {
   'foot.top': 'Back to top',
 
   /* ---- added in 2.0 ---- */
+  'nav.skip': 'Skip to content',
   'nav.archive': 'Work',
   'nav.close': 'Close',
   'meta.desc': 'nightwntr: web design, code and web development. Websites, videos and apps, done end to end.',

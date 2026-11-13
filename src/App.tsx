@@ -16,7 +16,7 @@ import { Order } from './sections/Order';
 import { Services } from './sections/Services';
 
 function Page() {
-  const { lang } = useI18n();
+  const { lang, t } = useI18n();
 
   useEffect(() => startSmoothScroll(), []);
 
@@ -28,11 +28,14 @@ function Page() {
 
   return (
     <>
+      <a className="skip-link" href="#main">
+        {t('nav.skip')}
+      </a>
       <Scene />
       <div className="grain" aria-hidden="true" />
       <Nav />
       <ChapterRail />
-      <main id="main">
+      <main id="main" tabIndex={-1}>
         <Hero />
         <Creator />
         <Skills />

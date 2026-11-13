@@ -52,9 +52,11 @@ void main() {
   gl_PointSize = size;
 
   // keep the emitted energy constant whatever the sprite size
-  float energy = (sharp * sharp) / (size * size);
+  // never brighter than in focus, even when a particle flies right past the lens
+  float energy = min((sharp * sharp) / (size * size), 1.0);
   energy *= min(d * d, 1.0);                       // sub-pixel points fade instead of aliasing
   energy = mix(energy, sqrt(energy), 0.35);        // let bokeh stay visible
+  energy *= smoothstep(0.4, 1.8, depth);           // and dissolve just before reaching the camera
 
   float speed = V.w;
   float hue = mix(hA, hB, m) + (rnd.x - 0.5) * 0.22 + uHue + speed * 0.10;

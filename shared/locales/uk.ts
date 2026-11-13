@@ -197,6 +197,7 @@ const locale: Locale = {
   'foot.top': 'Нагору',
 
   /* ---- added in 2.0 ---- */
+  'nav.skip': 'Перейти до вмісту',
   'nav.archive': 'Проєкти',
   'nav.close': 'Закрити',
   'meta.desc': 'nightwntr: вебдизайн, код і веброзробка. Сайти, ролики та застосунки під ключ.',

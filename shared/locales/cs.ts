@@ -197,6 +197,7 @@ const locale: Locale = {
   'foot.top': 'Nahoru',
 
   /* ---- added in 2.0 ---- */
+  'nav.skip': 'Přeskočit na obsah',
   'nav.archive': 'Projekty',
   'nav.close': 'Zavřít',
   'meta.desc': 'nightwntr: webdesign, kód a vývoj webů. Weby, videa a aplikace na klíč.',
