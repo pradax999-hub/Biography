@@ -86,6 +86,12 @@
   font-style: normal;
   color: var(--purple);
 }
+.hero-role .aka {
+  /* the nickname keeps its own spelling inside the upper-case line */
+  color: var(--ice);
+  text-transform: none;
+  letter-spacing: 0.14em;
+}
 .hero-role b {
   margin-left: auto;
   font-weight: 400;
@@ -246,6 +252,13 @@ html.is-ready .hud {
   .hud-hint,
   .hud-extra {
     display: none;
+  }
+  /* on narrow screens the nickname gets its own line, without a leading slash */
+  .hero-role .aka-sep {
+    display: none;
+  }
+  .hero-role .aka {
+    flex-basis: 100%;
   }
 }
 @media (max-width: 720px) {
@@ -1061,7 +1074,8 @@ html.is-ready .hud {
 .link-row .val {
   font-family: var(--f-display);
   font-weight: 400;
-  font-size: clamp(22px, 4.3vw, 76px);
+  /* sized so the longest contact (a 22-letter Telegram name) stays on one line on a phone */
+  font-size: clamp(14px, 4.1vw, 60px);
   line-height: 1.05;
   letter-spacing: -0.04em;
   overflow-wrap: anywhere;
@@ -1098,7 +1112,7 @@ html.is-ready .hud {
     transform: rotate(45deg);
   }
 }
-@media (max-width: 760px) {
+@media (max-width: 1000px) {
   .link-row {
     grid-template-columns: 1fr auto;
   }

@@ -8,6 +8,7 @@ import { SERVICES, money } from '../../shared/catalog';
 import { Icon } from '../components/Icon';
 import { AnchorLink } from '../components/Magnetic';
 import { Rich } from '../components/Text';
+import { SITE } from '../config/site';
 import { useI18n } from '../i18n/I18nProvider';
 import { on } from '../lib/bus';
 import { ScrollTrigger, finePointer, gsap, reducedMotion } from '../lib/motion';
@@ -136,6 +137,8 @@ export function Hero() {
           <span>Creative Developer</span>
           <i>/</i>
           <span>Digital Experimenter</span>
+          <i className="aka-sep">/</i>
+          <span className="aka">aka {SITE.aka}</span>
           <b>01 — The Void</b>
         </p>
 

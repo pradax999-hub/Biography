@@ -8,7 +8,7 @@ import { Icon } from '../components/Icon';
 import { AnchorLink } from '../components/Magnetic';
 import { Reveal, SplitReveal } from '../components/Text';
 import { useToast } from '../components/Toast';
-import { SITE, telegramUrl } from '../config/site';
+import { SITE, TELEGRAMS, telegramUrl } from '../config/site';
 import { useI18n } from '../i18n/I18nProvider';
 import { emit } from '../lib/bus';
 import { gsap, reducedMotion } from '../lib/motion';
@@ -56,19 +56,21 @@ export function Connection() {
         </Reveal>
 
         <div className="links">
-          <Reveal>
-            <a className="link-row" href={telegramUrl()} target="_blank" rel="noopener" data-cursor={t('cur.open')}>
-              <span className="lbl">
-                <Icon name="send" />
-                Telegram
-              </span>
-              <span className="val">@{SITE.telegram}</span>
-              <span className="go">
-                <Icon name="upright" />
-              </span>
-            </a>
-          </Reveal>
-          <Reveal delay={1}>
+          {TELEGRAMS.map((user, i) => (
+            <Reveal key={user} delay={i}>
+              <a className="link-row" href={telegramUrl(undefined, user)} target="_blank" rel="noopener" data-cursor={t('cur.open')}>
+                <span className="lbl">
+                  <Icon name="send" />
+                  Telegram
+                </span>
+                <span className="val">@{user}</span>
+                <span className="go">
+                  <Icon name="upright" />
+                </span>
+              </a>
+            </Reveal>
+          ))}
+          <Reveal delay={TELEGRAMS.length}>
             <div className="link-row">
               <span className="lbl">
                 <Icon name="mail" />
@@ -95,7 +97,9 @@ export function Connection() {
 
       <footer className="site-footer">
         <div className="wrap foot">
-          <span>© 2026 nightwntr · {t('foot.made')}</span>
+          <span>
+            © 2026 nightwntr aka {SITE.aka} · {t('foot.made')}
+          </span>
           <span className="foot-built">{t('foot.built')}</span>
           <AnchorLink href="#top">
             <span>{t('foot.top')}</span>

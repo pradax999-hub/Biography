@@ -93,6 +93,9 @@ async function run() {
     const stats = await text(page, '.hud-stats');
     check('HUD reports particles', /PTS/.test(stats) && !/ 0\s*PTS/.test(stats), stats);
     check('hero shows the real status, lead and price', (await text(page, '.status')).length > 3 && (await text(page, '.hero-cta')).includes('$650'));
+    check('hero shows the second nickname', (await text(page, '.hero-role')).includes('aka d2l'));
+    const tgLinks = await page.locator('#contact a.link-row[href^="https://t.me/"]').evaluateAll(as => as.map(a => a.getAttribute('href')));
+    check('contacts list both Telegram accounts', tgLinks.includes('https://t.me/nightwntr') && tgLinks.includes('https://t.me/enfantsrichesdepremis'), tgLinks.join(', '));
     for (const id of ['about', 'skills', 'langs', 'path', 'archive', 'services', 'order', 'contact']) {
       check(`section #${id} exists`, (await page.locator(`#${id}`).count()) === 1);
     }

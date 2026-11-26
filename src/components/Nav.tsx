@@ -8,7 +8,7 @@ import { pauseScroll, resumeScroll } from '../lib/motion';
 import { Icon } from './Icon';
 import { AnchorLink } from './Magnetic';
 import { useToast } from './Toast';
-import { SITE, telegramUrl } from '../config/site';
+import { TELEGRAMS, SITE, telegramUrl } from '../config/site';
 import type { Lang } from '../../shared/validation';
 
 const LINKS: Array<{ href: string; key: string }> = [
@@ -191,9 +191,11 @@ export function Nav() {
           ))}
         </ol>
         <div className="menu-foot">
-          <a href={telegramUrl()} target="_blank" rel="noopener" tabIndex={menu ? 0 : -1}>
-            @{SITE.telegram}
-          </a>
+          {TELEGRAMS.map(user => (
+            <a key={user} href={telegramUrl(undefined, user)} target="_blank" rel="noopener" tabIndex={menu ? 0 : -1}>
+              @{user}
+            </a>
+          ))}
           <a href={`mailto:${SITE.email}`} tabIndex={menu ? 0 : -1}>
             {SITE.email}
           </a>

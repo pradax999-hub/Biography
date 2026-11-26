@@ -29,6 +29,10 @@ export interface BankConfig {
 export interface SiteConfig {
   /** Telegram username without @ */
   telegram: string;
+  /** more Telegram accounts shown in the contacts (without @); orders still go to `telegram` */
+  telegramMore: string[];
+  /** second nickname, shown next to the name */
+  aka: string;
   email: string;
   /**
    * Bank transfer by QR code. The customer scans the code in a banking app:
@@ -49,6 +53,8 @@ export interface SiteConfig {
 
 export const SITE: SiteConfig = {
   telegram: 'nightwntr',
+  telegramMore: ['enfantsrichesdepremis'],
+  aka: 'd2l',
   email: 'pradax999@gmail.com',
 
   bank: {
@@ -70,4 +76,7 @@ export const SITE: SiteConfig = {
 /** Technologies shown on the marquee (carried over from 1.0). */
 export const TECH = ['HTML', 'CSS', 'JavaScript', 'Figma', 'UI/UX', 'Frontend'];
 
-export const telegramUrl = (text?: string): string => `https://t.me/${SITE.telegram}${text ? `?text=${encodeURIComponent(text)}` : ''}`;
+export const telegramUrl = (text?: string, user: string = SITE.telegram): string => `https://t.me/${user}${text ? `?text=${encodeURIComponent(text)}` : ''}`;
+
+/** every Telegram account shown in the contacts, main one first */
+export const TELEGRAMS = [SITE.telegram, ...SITE.telegramMore];
