@@ -65,9 +65,9 @@ export const PROJECTS: Project[] = [
     tags: ['HTML', 'CSS', 'JavaScript', 'Three.js', 'WebGL'],
     image: '/archive/nightwntr-1.jpg',
     badgeKey: 'arc.archived',
-    // 1.0 lived at bio-nightwntr.netlify.app. If 2.0 is deployed to a different
-    // address and 1.0 stays online, put its address here to add an "Open" link.
-    url: '',
+    // 2.0 lives at nightwntr.com; 1.0 stays online at its old address.
+    // Empty this if that old site is ever taken down.
+    url: 'https://bio-nightwntr.netlify.app/',
   },
 ];
 

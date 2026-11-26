@@ -93,7 +93,7 @@
 1. Владелец счёта регистрируется на stripe.com и проходит проверку.
 2. **Developers → API keys.** Сначала возьми тестовый ключ `sk_test_…`.
 3. **Developers → Webhooks → Add endpoint.**
-   - Endpoint URL: `https://ТВОЙ-САЙТ/api/webhooks/stripe`
+   - Endpoint URL: `https://nightwntr.com/api/webhooks/stripe`
    - События: `checkout.session.completed`,
      `checkout.session.async_payment_succeeded`,
      `checkout.session.async_payment_failed`, `checkout.session.expired`
@@ -103,7 +103,7 @@
    PAYMENT_PROVIDER=stripe
    STRIPE_SECRET_KEY=sk_test_…
    STRIPE_WEBHOOK_SECRET=whsec_…
-   SITE_URL=https://ТВОЙ-САЙТ
+   SITE_URL=https://nightwntr.com
    ```
    Публичный ключ (`pk_…`) не нужен: страница оплаты открывается по ссылке.
 5. Передеплой сайт и открой `/api/health`: должно быть
@@ -122,7 +122,7 @@
 ## Ручные оплаты (QR, ссылка, чат)
 
 Перевод по QR сайт проверить не может. Когда деньги пришли, отметь это в
-**панели владельца**: открой `https://ТВОЙ-САЙТ/api/admin`, введи
+**панели владельца**: открой `https://nightwntr.com/api/admin`, введи
 `ADMIN_TOKEN` и нажми «Оплата получена» у нужного заказа. Клиент увидит
 статус «Оплачен» на своей странице заказа.
 
@@ -138,9 +138,9 @@
 То же самое доступно как JSON API (для скриптов):
 
 ```sh
-curl https://ТВОЙ-САЙТ/api/admin/orders -H "Authorization: Bearer $ADMIN_TOKEN"
+curl https://nightwntr.com/api/admin/orders -H "Authorization: Bearer $ADMIN_TOKEN"
 
-curl -X POST https://ТВОЙ-САЙТ/api/admin/orders/NW-261113-1234/status \
+curl -X POST https://nightwntr.com/api/admin/orders/NW-261113-1234/status \
   -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \
   -d '{"status":"paid","note":"перевод получен"}'
 ```

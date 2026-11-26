@@ -170,7 +170,7 @@ docs/                        AUDIT.md, PAYMENTS.md
 
 ## Панель владельца
 
-`https://ТВОЙ-САЙТ/api/admin` — список заказов со статусами и контактами,
+`https://nightwntr.com/api/admin` — список заказов со статусами и контактами,
 кнопка «Оплата получена» для переводов по QR и оплат в чате, индикаторы
 настройки. Вход по `ADMIN_TOKEN`. Локально: `ADMIN_TOKEN=test npm run dev`
 и `http://localhost:5173/api/admin`.
@@ -186,6 +186,14 @@ docs/                        AUDIT.md, PAYMENTS.md
 Приходит: новый заказ, оплата получена, платёж в обработке, оплата не прошла,
 нужна ручная проверка. В сообщениях нет данных карт, ключей и токенов.
 Кнопка «Отправить в Telegram» у клиента работает независимо от бота.
+
+## Адрес
+
+Сайт живёт на **https://nightwntr.com** (проект `biography-nightwntr` на
+Netlify). DNS домена обслуживает Netlify: у регистратора прописаны серверы
+имён `dns1.p06.nsone.net` … `dns4.p06.nsone.net`, а в Netlify — записи для
+`nightwntr.com` и `www.nightwntr.com`. HTTPS-сертификат Netlify выпускает и
+продлевает сам. Старая версия 1.0 осталась на `bio-nightwntr.netlify.app`.
 
 ## Деплой на Netlify
 
