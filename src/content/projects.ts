@@ -25,6 +25,28 @@ export interface Project {
 
 export const PROJECTS: Project[] = [
   {
+    id: 'transfer-by-van',
+    title: 'Transfer by Van',
+    year: '2026',
+    kindKey: 'arc.ttt.kind',
+    descKey: 'arc.ttt.desc',
+    tags: ['JavaScript', 'Tailwind CSS', 'Leaflet', 'Stripe'],
+    image: '/archive/transfer-by-van.jpg',
+    url: 'https://ttt-72na.onrender.com/',
+  },
+  {
+    id: 'guarantic',
+    title: 'Guarantic',
+    year: '2026',
+    kindKey: 'arc.guar.kind',
+    descKey: 'arc.guar.desc',
+    tags: ['Telegram Mini App', 'JavaScript', 'Telegram Stars', 'TON'],
+    image: '/archive/guarantic.jpg',
+    // works only inside Telegram: opened in a normal browser it cannot load the
+    // user's data. Put the bot link here (https://t.me/…) to add an "Open" button.
+    url: '',
+  },
+  {
     id: 'nightwntr-2',
     title: 'NIGHTWNTR 2.0',
     year: '2026',

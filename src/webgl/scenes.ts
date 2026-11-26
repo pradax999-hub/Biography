@@ -76,7 +76,7 @@ const PORTRAIT: Record<string, Partial<SceneDef>> = {
   skills: { x: -0.3, y: 0.4, scale: 0.5, alpha: 0.24, trail: 0.4 },
   langs: { x: 0, y: 0, scale: 0.8, alpha: 0.2 },
   path: { x: 0.4, y: 0.4, scale: 0.46, alpha: 0.24, trail: 0.4 },
-  archive: { y: -0.5, scale: 0.62, alpha: 0.4 },
+  archive: { y: -0.5, scale: 0.62, alpha: 0.26, trail: 0.35 },
   services: { scale: 0.56, alpha: 0.26 },
   order: { alpha: 0.14 },
   connection: { y: 0.3, scale: 0.52, alpha: 0.7 },
